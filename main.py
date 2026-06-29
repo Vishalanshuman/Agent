@@ -73,7 +73,15 @@ def ask(request: AskRequest):
     current_agent = get_agent()
     state = {"messages": [{"role": "user", "content": request.message}]}
     response = current_agent.invoke(state)
-    answer = response["messages"][-1].content
+
+    last_message = response["messages"][-1]
+    if hasattr(last_message, "content"):
+        answer = last_message.content
+    elif isinstance(last_message, dict) and "content" in last_message:
+        answer = last_message["content"]
+    else:
+        answer = str(last_message)
+
     return {"answer": answer}
 
 
